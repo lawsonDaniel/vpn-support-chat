@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Shield, Lock, Zap, Globe } from "lucide-react";
 import ChatWidget from "@/components/ChatWidget";
 
@@ -13,6 +13,13 @@ const features = [
 export default function Home() {
   const [isOpen, setIsOpen] = useState(false);
   const [hasUnread, setHasUnread] = useState(true);
+  const [showLabel, setShowLabel] = useState(false);
+  const [closing, setClosing] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setShowLabel(true), 800);
+    return () => clearTimeout(t);
+  }, []);
 
   function handleOpen() {
     setIsOpen(true);
@@ -78,46 +85,73 @@ export default function Home() {
       <div className="fixed bottom-6 right-6 flex flex-col items-end gap-3 z-50">
         {isOpen && (
           <div className="animate-slideUp">
-            <ChatWidget onClose={() => setIsOpen(false)} />
+            <ChatWidget onClose={() => { setClosing(true); setIsOpen(false); }} />
           </div>
         )}
 
-        {/* Bubble */}
-        <div className="relative">
-          {/* Pulse ring — only when unread and closed */}
-          {hasUnread && !isOpen && (
-            <span
-              className="absolute inset-0 rounded-full animate-pulseRing pointer-events-none"
-              style={{ background: "linear-gradient(135deg, #6366f1, #3b82f6)" }}
-            />
+        {/* Label + bubble row */}
+        <div className="flex items-center gap-3">
+          {/* "Contact support" pill — visible only when chat is closed */}
+          {showLabel && !isOpen && (
+            <button
+              onClick={handleOpen}
+              aria-label="Open support chat"
+              className={`flex items-center gap-2.5 bg-white rounded-full pl-3 pr-4 py-2.5
+                shadow-xl border border-slate-100 hover:shadow-2xl hover:border-indigo-200
+                transition-shadow duration-200 group
+                ${closing ? "animate-labelFade" : "animate-labelSlide"}`}
+              onAnimationEnd={() => setClosing(false)}
+            >
+              {/* Online dot */}
+              <span className="relative flex-shrink-0">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 block" />
+                <span className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-60" />
+              </span>
+              {/* Typewriter text */}
+              <span
+                className="text-[13px] font-semibold text-slate-700 group-hover:text-indigo-600
+                  transition-colors animate-typewriter"
+              >
+                Contact support
+              </span>
+            </button>
           )}
-          <button
-            onClick={() => (isOpen ? setIsOpen(false) : handleOpen())}
-            aria-label={isOpen ? "Close support chat" : "Open support chat"}
-            className="relative w-14 h-14 rounded-full flex items-center justify-center
-              shadow-xl hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-indigo-300
-              transition-all duration-200 hover:scale-105 active:scale-95"
-            style={{ background: "linear-gradient(135deg, #4f46e5 0%, #2563eb 100%)" }}
-          >
-            <span key={isOpen ? "x" : "msg"} className="animate-iconIn absolute">
-              {isOpen ? (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
-                  <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              ) : (
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                </svg>
-              )}
-            </span>
-          </button>
 
-          {/* Unread dot */}
-          {hasUnread && !isOpen && (
-            <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-red-500 border-2 border-white flex items-center justify-center">
-              <span className="text-[8px] text-white font-bold">1</span>
-            </span>
-          )}
+          {/* Bubble */}
+          <div className="relative flex-shrink-0">
+            {hasUnread && !isOpen && (
+              <span
+                className="absolute inset-0 rounded-full animate-pulseRing pointer-events-none"
+                style={{ background: "linear-gradient(135deg, #6366f1, #3b82f6)" }}
+              />
+            )}
+            <button
+              onClick={() => (isOpen ? setIsOpen(false) : handleOpen())}
+              aria-label={isOpen ? "Close support chat" : "Open support chat"}
+              className="relative w-14 h-14 rounded-full flex items-center justify-center
+                shadow-xl hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-indigo-300
+                transition-all duration-200 hover:scale-105 active:scale-95"
+              style={{ background: "linear-gradient(135deg, #4f46e5 0%, #2563eb 100%)" }}
+            >
+              <span key={isOpen ? "x" : "msg"} className="animate-iconIn absolute">
+                {isOpen ? (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
+                    <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                ) : (
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                  </svg>
+                )}
+              </span>
+            </button>
+
+            {hasUnread && !isOpen && (
+              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-red-500 border-2 border-white flex items-center justify-center">
+                <span className="text-[8px] text-white font-bold">1</span>
+              </span>
+            )}
+          </div>
         </div>
       </div>
     </div>
