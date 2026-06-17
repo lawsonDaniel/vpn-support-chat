@@ -1,11 +1,12 @@
 "use client";
 
 import { Message } from "@/types";
-import { ShieldAlert, Bot, User } from "lucide-react";
+import { ShieldAlert } from "lucide-react";
 
 interface Props {
   message: Message;
   compact?: boolean;
+  isLastInGroup?: boolean;
 }
 
 function formatContent(text: string) {
@@ -23,7 +24,7 @@ function formatContent(text: string) {
         i++;
       }
       elements.push(
-        <ol key={i} className="list-decimal list-inside space-y-1 my-2">
+        <ol key={i} className="list-decimal list-inside space-y-1 my-2 pl-1">
           {items.map((item, idx) => (
             <li key={idx} dangerouslySetInnerHTML={{ __html: formatInline(item) }} />
           ))}
@@ -39,7 +40,7 @@ function formatContent(text: string) {
         i++;
       }
       elements.push(
-        <ul key={i} className="list-disc list-inside space-y-1 my-2">
+        <ul key={i} className="list-disc list-inside space-y-1 my-2 pl-1">
           {items.map((item, idx) => (
             <li key={idx} dangerouslySetInnerHTML={{ __html: formatInline(item) }} />
           ))}
@@ -51,17 +52,19 @@ function formatContent(text: string) {
     if (/^#{1,3}\s/.test(line)) {
       const headingText = line.replace(/^#{1,3}\s/, "");
       elements.push(
-        <p key={i} className="font-semibold mt-3 mb-1" dangerouslySetInnerHTML={{ __html: formatInline(headingText) }} />
+        <p key={i} className="font-semibold mt-3 mb-1"
+          dangerouslySetInnerHTML={{ __html: formatInline(headingText) }} />
       );
       i++;
       continue;
     }
 
     if (line.trim() === "") {
-      elements.push(<br key={i} />);
+      elements.push(<span key={i} className="block h-2" />);
     } else {
       elements.push(
-        <p key={i} className="mb-1" dangerouslySetInnerHTML={{ __html: formatInline(line) }} />
+        <p key={i} className="leading-relaxed"
+          dangerouslySetInnerHTML={{ __html: formatInline(line) }} />
       );
     }
     i++;
@@ -72,47 +75,56 @@ function formatContent(text: string) {
 
 function formatInline(text: string): string {
   return text
-    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-    .replace(/`(.+?)`/g, '<code class="bg-gray-100 px-1.5 py-0.5 rounded text-xs font-mono text-gray-700">$1</code>');
+    .replace(/\*\*(.+?)\*\*/g, "<strong class='font-semibold'>$1</strong>")
+    .replace(/`(.+?)`/g,
+      '<code class="bg-black/8 px-1.5 py-0.5 rounded-md text-[11px] font-mono tracking-tight">$1</code>');
 }
 
-export default function ChatMessage({ message, compact = false }: Props) {
+export default function ChatMessage({ message, isLastInGroup = true }: Props) {
   const isUser = message.role === "user";
-  const avatarSize = compact ? "w-6 h-6" : "w-7 h-7";
-  const iconSize = compact ? 11 : 14;
-  const textSize = compact ? "text-xs" : "text-sm";
-  const padding = compact ? "px-3 py-2" : "px-4 py-3";
-  const gap = compact ? "gap-2 mb-2" : "gap-2.5 mb-3";
 
   return (
-    <div className={`flex ${gap} ${isUser ? "flex-row-reverse" : "flex-row"}`}>
-      <div className={`flex-shrink-0 ${avatarSize} rounded-full flex items-center justify-center mt-1 bg-blue-600`}>
-        {isUser ? (
-          <User size={iconSize} className="text-white" />
-        ) : (
-          <Bot size={iconSize} className="text-white" />
+    <div className={`flex gap-2.5 animate-msgIn ${isUser ? "flex-row-reverse" : "flex-row"} mb-1`}>
+      {/* Avatar — only on last message in a group */}
+      <div className="flex-shrink-0 w-7 mt-auto">
+        {isLastInGroup && (
+          <div
+            className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold select-none
+              ${isUser
+                ? "bg-gradient-to-br from-indigo-500 to-blue-500 text-white shadow-sm"
+                : "bg-white border border-slate-200 text-slate-500 shadow-sm"
+              }`}
+          >
+            {isUser ? "U" : "AI"}
+          </div>
         )}
       </div>
 
-      <div
-        className={`max-w-[80%] rounded-2xl ${padding} ${textSize} leading-relaxed shadow-sm
-          ${isUser
-            ? "bg-blue-600 text-white rounded-tr-sm"
-            : message.isOffTopic
-            ? "bg-amber-50 border border-amber-200 text-gray-800 rounded-tl-sm"
-            : "bg-white border border-gray-200 text-gray-800 rounded-tl-sm"
-          }`}
-      >
-        {message.isOffTopic && !isUser && (
-          <div className="flex items-center gap-1.5 text-amber-600 text-[10px] font-medium mb-1.5">
-            <ShieldAlert size={11} />
-            <span>Off-topic detected</span>
-          </div>
-        )}
-        <div>{formatContent(message.content)}</div>
-        <div className={`text-[10px] mt-1 ${isUser ? "text-blue-200" : "text-gray-400"}`}>
-          {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+      {/* Bubble */}
+      <div className={`max-w-[78%] ${isLastInGroup ? "mb-3" : "mb-0.5"}`}>
+        <div
+          className={`rounded-2xl px-3.5 py-2.5 text-[13px] leading-[1.55]
+            ${isUser
+              ? "bg-gradient-to-br from-indigo-500 to-blue-500 text-white rounded-tr-[4px] shadow-md shadow-blue-200"
+              : message.isOffTopic
+              ? "bg-amber-50 border border-amber-200/80 text-slate-700 rounded-tl-[4px] shadow-sm"
+              : "bg-white border border-slate-100 text-slate-700 rounded-tl-[4px] shadow-sm"
+            }`}
+        >
+          {message.isOffTopic && !isUser && (
+            <div className="flex items-center gap-1.5 text-amber-600 text-[10px] font-medium mb-2 pb-2 border-b border-amber-100">
+              <ShieldAlert size={11} />
+              <span>Outside VPN support scope</span>
+            </div>
+          )}
+          <div className="space-y-0.5">{formatContent(message.content)}</div>
         </div>
+
+        {isLastInGroup && (
+          <p className={`text-[10px] mt-1 px-1 ${isUser ? "text-right text-slate-400" : "text-slate-400"}`}>
+            {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+          </p>
+        )}
       </div>
     </div>
   );

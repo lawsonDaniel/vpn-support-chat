@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, KeyboardEvent, useRef, useState } from "react";
-import { Send } from "lucide-react";
+import { ArrowUp } from "lucide-react";
 
 const MAX_CHARS = 2000;
 
@@ -11,7 +11,7 @@ interface Props {
   compact?: boolean;
 }
 
-export default function ChatInput({ onSend, disabled, compact = false }: Props) {
+export default function ChatInput({ onSend, disabled }: Props) {
   const ref = useRef<HTMLTextAreaElement>(null);
   const [charCount, setCharCount] = useState(0);
 
@@ -41,17 +41,16 @@ export default function ChatInput({ onSend, disabled, compact = false }: Props) 
     const el = ref.current;
     if (!el) return;
     el.style.height = "auto";
-    el.style.height = `${Math.min(el.scrollHeight, compact ? 100 : 140)}px`;
+    el.style.height = `${Math.min(el.scrollHeight, 110)}px`;
   }
 
   const overLimit = charCount > MAX_CHARS;
-  const btnSize = compact ? "w-8 h-8" : "w-11 h-11";
-  const textSize = compact ? "text-xs" : "text-sm";
-  const padding = compact ? "px-3 py-2" : "px-4 py-3";
+  const hasText = charCount > 0;
 
   return (
-    <div className="flex flex-col gap-1">
-      <form onSubmit={handleSubmit} className="flex items-end gap-2">
+    <div className="flex flex-col gap-1.5">
+      <div className={`flex items-end gap-2 rounded-2xl border bg-slate-50 px-3 py-2 transition-all
+        ${overLimit ? "border-red-300 ring-1 ring-red-200" : "border-slate-200 focus-within:border-indigo-300 focus-within:ring-1 focus-within:ring-indigo-100"}`}>
         <textarea
           ref={ref}
           rows={1}
@@ -59,28 +58,27 @@ export default function ChatInput({ onSend, disabled, compact = false }: Props) 
           onChange={handleChange}
           onKeyDown={handleKeyDown}
           placeholder="Ask a VPN question…"
-          className={`flex-1 resize-none rounded-xl bg-gray-50 border
-            ${padding} ${textSize} text-gray-900 placeholder-gray-400
-            disabled:opacity-50 transition-all max-h-28 overflow-y-auto focus:outline-none focus:ring-2
-            ${overLimit
-              ? "border-red-400 focus:border-red-400 focus:ring-red-100"
-              : "border-gray-300 focus:border-blue-400 focus:ring-blue-100"
-            }`}
+          className="flex-1 resize-none bg-transparent text-[13px] text-slate-800 placeholder-slate-400
+            focus:outline-none max-h-[110px] overflow-y-auto py-0.5 leading-relaxed"
         />
         <button
-          type="submit"
-          disabled={disabled || overLimit}
+          type="button"
+          onClick={handleSubmit as unknown as React.MouseEventHandler}
+          disabled={disabled || !hasText || overLimit}
           aria-label="Send message"
-          className={`flex-shrink-0 ${btnSize} rounded-xl bg-blue-600 hover:bg-blue-700
-            disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center
-            transition-colors focus:outline-none focus:ring-2 focus:ring-blue-300 shadow-sm`}
+          className={`flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center
+            transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-indigo-300
+            ${hasText && !overLimit && !disabled
+              ? "bg-gradient-to-br from-indigo-500 to-blue-500 shadow-md shadow-blue-200/50 hover:shadow-lg hover:scale-105"
+              : "bg-slate-200 cursor-not-allowed"
+            }`}
         >
-          <Send size={compact ? 14 : 17} className="text-white" />
+          <ArrowUp size={15} className={hasText && !overLimit && !disabled ? "text-white" : "text-slate-400"} />
         </button>
-      </form>
+      </div>
       {charCount > 1800 && (
-        <p className={`text-[10px] text-right pr-12 ${overLimit ? "text-red-500" : "text-gray-400"}`}>
-          {charCount}/{MAX_CHARS}
+        <p className={`text-[10px] text-right pr-1 ${overLimit ? "text-red-500" : "text-slate-400"}`}>
+          {charCount} / {MAX_CHARS}
         </p>
       )}
     </div>
