@@ -5,6 +5,7 @@ import { ShieldAlert, Bot, User } from "lucide-react";
 
 interface Props {
   message: Message;
+  compact?: boolean;
 }
 
 function formatContent(text: string) {
@@ -75,24 +76,26 @@ function formatInline(text: string): string {
     .replace(/`(.+?)`/g, '<code class="bg-gray-100 px-1.5 py-0.5 rounded text-xs font-mono text-gray-700">$1</code>');
 }
 
-export default function ChatMessage({ message }: Props) {
+export default function ChatMessage({ message, compact = false }: Props) {
   const isUser = message.role === "user";
+  const avatarSize = compact ? "w-6 h-6" : "w-7 h-7";
+  const iconSize = compact ? 11 : 14;
+  const textSize = compact ? "text-xs" : "text-sm";
+  const padding = compact ? "px-3 py-2" : "px-4 py-3";
+  const gap = compact ? "gap-2 mb-2" : "gap-2.5 mb-3";
 
   return (
-    <div className={`flex gap-2.5 ${isUser ? "flex-row-reverse" : "flex-row"} mb-3`}>
-      <div
-        className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center mt-1
-          ${isUser ? "bg-blue-600" : "bg-blue-600"}`}
-      >
+    <div className={`flex ${gap} ${isUser ? "flex-row-reverse" : "flex-row"}`}>
+      <div className={`flex-shrink-0 ${avatarSize} rounded-full flex items-center justify-center mt-1 bg-blue-600`}>
         {isUser ? (
-          <User size={14} className="text-white" />
+          <User size={iconSize} className="text-white" />
         ) : (
-          <Bot size={14} className="text-white" />
+          <Bot size={iconSize} className="text-white" />
         )}
       </div>
 
       <div
-        className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm
+        className={`max-w-[80%] rounded-2xl ${padding} ${textSize} leading-relaxed shadow-sm
           ${isUser
             ? "bg-blue-600 text-white rounded-tr-sm"
             : message.isOffTopic
@@ -101,13 +104,13 @@ export default function ChatMessage({ message }: Props) {
           }`}
       >
         {message.isOffTopic && !isUser && (
-          <div className="flex items-center gap-1.5 text-amber-600 text-xs font-medium mb-2">
-            <ShieldAlert size={12} />
+          <div className="flex items-center gap-1.5 text-amber-600 text-[10px] font-medium mb-1.5">
+            <ShieldAlert size={11} />
             <span>Off-topic detected</span>
           </div>
         )}
         <div>{formatContent(message.content)}</div>
-        <div className={`text-[10px] mt-1.5 ${isUser ? "text-blue-200" : "text-gray-400"}`}>
+        <div className={`text-[10px] mt-1 ${isUser ? "text-blue-200" : "text-gray-400"}`}>
           {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
         </div>
       </div>
