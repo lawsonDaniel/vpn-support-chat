@@ -49,8 +49,8 @@ export default function ChatInput({ onSend, disabled }: Props) {
 
   return (
     <div className="flex flex-col gap-1.5">
-      <div className={`flex items-end gap-2 rounded-2xl border bg-slate-50 px-3 py-2 transition-all
-        ${overLimit ? "border-red-300 ring-1 ring-red-200" : "border-slate-200 focus-within:border-indigo-300 focus-within:ring-1 focus-within:ring-indigo-100"}`}>
+      <div className={`glass flex items-end gap-2 rounded-2xl px-3 py-2 transition-all
+        ${overLimit ? "ring-1 ring-red-300" : "focus-within:ring-1 focus-within:ring-indigo-200"}`}>
         <textarea
           ref={ref}
           rows={1}
@@ -66,14 +66,14 @@ export default function ChatInput({ onSend, disabled }: Props) {
           onClick={handleSubmit as unknown as React.MouseEventHandler}
           disabled={disabled || !hasText || overLimit}
           aria-label="Send message"
-          className={`flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center
+          className={`glass-sheen relative flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center
             transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-indigo-300
             ${hasText && !overLimit && !disabled
-              ? "bg-gradient-to-br from-indigo-500 to-blue-500 shadow-md shadow-blue-200/50 hover:shadow-lg hover:scale-105"
-              : "bg-slate-200 cursor-not-allowed"
+              ? "glass-tint hover:shadow-lg hover:scale-105"
+              : "bg-slate-300/40 backdrop-blur-md cursor-not-allowed"
             }`}
         >
-          <ArrowUp size={15} className={hasText && !overLimit && !disabled ? "text-white" : "text-slate-400"} />
+          <ArrowUp size={15} className={`relative z-10 ${hasText && !overLimit && !disabled ? "text-white" : "text-slate-400"}`} />
         </button>
       </div>
       {charCount > 1800 && (

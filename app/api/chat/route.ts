@@ -1,41 +1,27 @@
 import { NextRequest } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
-import { anthropic, VPN_SYSTEM_PROMPT } from "@/lib/anthropic";
+import OpenAI from "openai";
+import { openai, VPN_SYSTEM_PROMPT } from "@/lib/openai";
+import { classifyIntent, isOffTopicIntent } from "@/lib/intent";
+import { retrieve, buildContext } from "@/lib/vectordb";
 import { ChatRequest } from "@/types";
 
 export const runtime = "nodejs";
-
-const OFF_TOPIC_KEYWORDS = [
-  "recipe", "cooking", "weather", "sports", "movie", "music",
-  "celebrity", "stock market", "cryptocurrency", "dating", "relationship",
-  "homework", "math problem", "history lesson",
-];
-
-function likelyOffTopic(message: string): boolean {
-  const lower = message.toLowerCase();
-  return OFF_TOPIC_KEYWORDS.some((kw) => lower.includes(kw)) &&
-    !lower.includes("vpn") &&
-    !lower.includes("network") &&
-    !lower.includes("connection") &&
-    !lower.includes("proxy") &&
-    !lower.includes("tunnel");
-}
 
 function isValidRole(role: unknown): role is "user" | "assistant" {
   return role === "user" || role === "assistant";
 }
 
-function mapAnthropicError(err: unknown): { status: number; message: string } {
-  if (err instanceof Anthropic.AuthenticationError) {
+function mapOpenAIError(err: unknown): { status: number; message: string } {
+  if (err instanceof OpenAI.AuthenticationError) {
     return { status: 401, message: "Authentication error — check your API key." };
   }
-  if (err instanceof Anthropic.RateLimitError) {
+  if (err instanceof OpenAI.RateLimitError) {
     return { status: 429, message: "Rate limit reached. Please wait a moment and try again." };
   }
-  if (err instanceof Anthropic.APIConnectionError) {
+  if (err instanceof OpenAI.APIConnectionError) {
     return { status: 503, message: "Could not reach the AI service. Please try again." };
   }
-  if (err instanceof Anthropic.APIError) {
+  if (err instanceof OpenAI.APIError) {
     return { status: err.status ?? 500, message: "The AI service returned an error. Please try again." };
   }
   return { status: 500, message: "An unexpected error occurred. Please try again." };
@@ -43,7 +29,7 @@ function mapAnthropicError(err: unknown): { status: number; message: string } {
 
 export async function POST(req: NextRequest) {
   // Check API key is configured
-  if (!process.env.ANTHROPIC_API_KEY) {
+  if (!process.env.OPENAI_API_KEY) {
     return Response.json({ error: "Server is not configured correctly." }, { status: 503 });
   }
 
@@ -72,9 +58,21 @@ export async function POST(req: NextRequest) {
     .filter((m) => isValidRole(m.role) && typeof m.content === "string" && m.content.trim().length > 0)
     .slice(-20);
 
-  const isOffTopic = likelyOffTopic(trimmed);
+  const intent = await classifyIntent(trimmed);
+  const isOffTopic = isOffTopicIntent(intent);
 
-  const messages: Anthropic.MessageParam[] = [
+  // Retrieval-augmented generation: pull relevant docs from the vector DB for
+  // substantive VPN questions. Skip for greetings and off-topic messages.
+  const useRag = intent !== "greeting" && !isOffTopic;
+  const hits = useRag ? retrieve(trimmed, 3) : [];
+  const context = buildContext(hits);
+
+  const systemContent = context
+    ? `${VPN_SYSTEM_PROMPT}\n\n---\n${context}`
+    : VPN_SYSTEM_PROMPT;
+
+  const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+    { role: "system", content: systemContent },
     ...history.map((m) => ({ role: m.role, content: m.content })),
     { role: "user", content: trimmed },
   ];
@@ -87,25 +85,23 @@ export async function POST(req: NextRequest) {
         controller.enqueue(encoder.encode(`data: ${JSON.stringify(payload)}\n\n`));
 
       try {
-        const stream = anthropic.messages.stream({
-          model: "claude-sonnet-4-6",
+        const stream = await openai.chat.completions.create({
+          model: "gpt-4",
           max_tokens: 1024,
-          system: VPN_SYSTEM_PROMPT,
           messages,
+          stream: true,
         });
 
         for await (const chunk of stream) {
-          if (
-            chunk.type === "content_block_delta" &&
-            chunk.delta.type === "text_delta"
-          ) {
-            send({ type: "delta", text: chunk.delta.text, isOffTopic });
+          const text = chunk.choices[0]?.delta?.content;
+          if (text) {
+            send({ type: "delta", text, isOffTopic, intent });
           }
         }
 
         send({ type: "done" });
       } catch (err) {
-        const { message } = mapAnthropicError(err);
+        const { message } = mapOpenAIError(err);
         send({ type: "error", message });
       } finally {
         controller.close();

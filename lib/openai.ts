@@ -1,7 +1,7 @@
-import Anthropic from "@anthropic-ai/sdk";
+import OpenAI from "openai";
 
-export const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
+export const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 export const VPN_SYSTEM_PROMPT = `You are a specialized VPN support assistant for a VPN service provider. Your role is to help users with VPN-related questions and issues only.

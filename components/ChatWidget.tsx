@@ -166,27 +166,21 @@ export default function ChatWidget({ onClose }: Props) {
 
   return (
     <div
-      className={`flex flex-col rounded-[20px] overflow-hidden transition-all duration-300 ease-in-out
-        w-[370px] border border-white/60
+      className={`glass-strong flex flex-col rounded-[28px] overflow-hidden transition-all duration-300 ease-in-out
+        w-[370px]
         ${minimised ? "h-[62px]" : "h-[620px]"}`}
-      style={{
-        maxHeight: "calc(100vh - 110px)",
-        boxShadow: "0 32px 64px -12px rgba(0,0,0,0.22), 0 0 0 1px rgba(0,0,0,0.06)",
-      }}
+      style={{ maxHeight: "calc(100vh - 110px)" }}
     >
       {/* Header */}
-      <div
-        className="flex items-center justify-between px-4 py-3.5 flex-shrink-0 relative overflow-hidden"
-        style={{ background: "linear-gradient(135deg, #4f46e5 0%, #2563eb 100%)" }}
-      >
+      <div className="glass-tint glass-sheen flex items-center justify-between px-4 py-3.5 flex-shrink-0 relative overflow-hidden">
         {/* Decorative circles */}
-        <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-white/5 pointer-events-none" />
-        <div className="absolute -bottom-8 -left-4 w-20 h-20 rounded-full bg-white/5 pointer-events-none" />
+        <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-white/10 pointer-events-none" />
+        <div className="absolute -bottom-8 -left-4 w-20 h-20 rounded-full bg-white/10 pointer-events-none" />
 
         <div className="flex items-center gap-3 relative">
           {/* Avatar */}
           <div className="relative">
-            <div className="w-9 h-9 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center ring-2 ring-white/30">
+            <div className="glass-subtle w-9 h-9 rounded-full flex items-center justify-center">
               <Shield size={16} className="text-white" />
             </div>
             <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-[#3b5be6]" />
@@ -235,12 +229,12 @@ export default function ChatWidget({ onClose }: Props) {
       {/* Body */}
       {!minimised && (
         <>
-          <div className="flex-1 overflow-y-auto px-4 py-4 bg-slate-50/80 space-y-0">
+          <div className="flex-1 overflow-y-auto px-4 py-4 bg-white/15 space-y-0">
             {showEmpty && (
               <div className="flex flex-col items-center text-center gap-4 pt-2">
                 {/* Welcome card */}
-                <div className="w-full rounded-2xl bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-100/80 px-4 py-5">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-blue-500 flex items-center justify-center mx-auto mb-3 shadow-md shadow-blue-200">
+                <div className="glass glass-sheen w-full rounded-2xl px-4 py-5">
+                  <div className="glass-tint glass-sheen w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-3 relative">
                     <Shield size={18} className="text-white" />
                   </div>
                   <p className="font-semibold text-slate-800 text-sm mb-1">Hi there! 👋</p>
@@ -259,9 +253,9 @@ export default function ChatWidget({ onClose }: Props) {
                       <button
                         key={q}
                         onClick={() => sendMessage(q)}
-                        className="text-left text-xs px-3.5 py-2.5 rounded-xl bg-white hover:bg-indigo-50
-                          border border-slate-200 hover:border-indigo-300 text-slate-600 hover:text-indigo-700
-                          transition-all duration-150 shadow-sm hover:shadow-md"
+                        className="glass glass-sheen text-left text-xs px-3.5 py-2.5 rounded-xl
+                          text-slate-700 hover:text-indigo-700
+                          transition-all duration-150 hover:shadow-md hover:scale-[1.01]"
                       >
                         {q}
                       </button>
@@ -281,11 +275,11 @@ export default function ChatWidget({ onClose }: Props) {
             {isLoading && streamingText === "" && (
               <div className="flex gap-2.5 mb-1 animate-msgIn">
                 <div className="flex-shrink-0 w-7 mt-auto">
-                  <div className="w-7 h-7 rounded-full bg-white border border-slate-100 shadow-sm flex items-center justify-center text-[10px] font-bold text-slate-500">
+                  <div className="glass flex items-center justify-center w-7 h-7 rounded-full text-[10px] font-bold text-slate-500">
                     AI
                   </div>
                 </div>
-                <div className="bg-white border border-slate-100 rounded-2xl rounded-tl-[4px] shadow-sm px-3 py-2.5">
+                <div className="glass glass-sheen rounded-2xl rounded-tl-[4px] px-3 py-2.5">
                   <LoadingDots />
                 </div>
               </div>
@@ -318,7 +312,7 @@ export default function ChatWidget({ onClose }: Props) {
           </div>
 
           {/* Footer */}
-          <div className="px-3.5 pt-3 pb-3.5 bg-white border-t border-slate-100 flex-shrink-0">
+          <div className="px-3.5 pt-3 pb-3.5 bg-white/25 border-t border-white/40 flex-shrink-0">
             <ChatInput onSend={sendMessage} disabled={isLoading} compact />
             <p className="text-[10px] text-slate-400 text-center mt-2 tracking-tight">
               Secured by end-to-end encryption · VPN support only

@@ -89,10 +89,10 @@ export default function ChatMessage({ message, isLastInGroup = true }: Props) {
       <div className="flex-shrink-0 w-7 mt-auto">
         {isLastInGroup && (
           <div
-            className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold select-none
+            className={`glass-sheen w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold select-none relative
               ${isUser
-                ? "bg-gradient-to-br from-indigo-500 to-blue-500 text-white shadow-sm"
-                : "bg-white border border-slate-200 text-slate-500 shadow-sm"
+                ? "glass-tint text-white"
+                : "glass text-slate-500"
               }`}
           >
             {isUser ? "U" : "AI"}
@@ -103,21 +103,21 @@ export default function ChatMessage({ message, isLastInGroup = true }: Props) {
       {/* Bubble */}
       <div className={`max-w-[78%] ${isLastInGroup ? "mb-3" : "mb-0.5"}`}>
         <div
-          className={`rounded-2xl px-3.5 py-2.5 text-[13px] leading-[1.55]
+          className={`glass-sheen relative rounded-2xl px-3.5 py-2.5 text-[13px] leading-[1.55]
             ${isUser
-              ? "bg-gradient-to-br from-indigo-500 to-blue-500 text-white rounded-tr-[4px] shadow-md shadow-blue-200"
+              ? "glass-tint text-white rounded-tr-[4px]"
               : message.isOffTopic
-              ? "bg-amber-50 border border-amber-200/80 text-slate-700 rounded-tl-[4px] shadow-sm"
-              : "bg-white border border-slate-100 text-slate-700 rounded-tl-[4px] shadow-sm"
+              ? "bg-amber-100/50 backdrop-blur-xl border border-amber-200/70 text-slate-700 rounded-tl-[4px] shadow-sm"
+              : "glass text-slate-700 rounded-tl-[4px]"
             }`}
         >
           {message.isOffTopic && !isUser && (
-            <div className="flex items-center gap-1.5 text-amber-600 text-[10px] font-medium mb-2 pb-2 border-b border-amber-100">
+            <div className="relative z-10 flex items-center gap-1.5 text-amber-600 text-[10px] font-medium mb-2 pb-2 border-b border-amber-200/60">
               <ShieldAlert size={11} />
               <span>Outside VPN support scope</span>
             </div>
           )}
-          <div className="space-y-0.5">{formatContent(message.content)}</div>
+          <div className="relative z-10 space-y-0.5">{formatContent(message.content)}</div>
         </div>
 
         {isLastInGroup && (

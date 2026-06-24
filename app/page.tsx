@@ -28,21 +28,20 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 relative overflow-hidden"
-      style={{ background: "linear-gradient(160deg, #f0f4ff 0%, #ffffff 50%, #f8fafc 100%)" }}>
+      style={{ background: "linear-gradient(160deg, #e9eeff 0%, #f4f0ff 45%, #eafaff 100%)" }}>
 
-      {/* Decorative blobs */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full opacity-20 pointer-events-none"
-        style={{ background: "radial-gradient(circle, #6366f1 0%, transparent 70%)", filter: "blur(60px)" }} />
-      <div className="absolute bottom-0 right-1/4 w-80 h-80 rounded-full opacity-15 pointer-events-none"
-        style={{ background: "radial-gradient(circle, #3b82f6 0%, transparent 70%)", filter: "blur(60px)" }} />
+      {/* Vivid colour field — gives the Liquid Glass surfaces something to refract */}
+      <div className="absolute top-[-8%] left-[12%] w-[26rem] h-[26rem] rounded-full opacity-50 pointer-events-none animate-meshDrift"
+        style={{ background: "radial-gradient(circle, #6366f1 0%, transparent 70%)", filter: "blur(70px)" }} />
+      <div className="absolute bottom-[-6%] right-[14%] w-[24rem] h-[24rem] rounded-full opacity-45 pointer-events-none animate-meshDrift"
+        style={{ background: "radial-gradient(circle, #22d3ee 0%, transparent 70%)", filter: "blur(70px)", animationDelay: "-6s" }} />
+      <div className="absolute top-[35%] right-[26%] w-[18rem] h-[18rem] rounded-full opacity-40 pointer-events-none animate-meshDrift"
+        style={{ background: "radial-gradient(circle, #f472b6 0%, transparent 70%)", filter: "blur(70px)", animationDelay: "-12s" }} />
 
       {/* Hero */}
       <div className="text-center max-w-md relative z-10">
-        <div
-          className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl"
-          style={{ background: "linear-gradient(135deg, #4f46e5 0%, #2563eb 100%)" }}
-        >
-          <Shield size={30} className="text-white" />
+        <div className="glass-tint glass-sheen w-16 h-16 rounded-[20px] flex items-center justify-center mx-auto mb-6">
+          <Shield size={30} className="text-white relative" />
         </div>
 
         <h1 className="text-4xl font-bold text-slate-900 mb-3 tracking-tight">
@@ -57,10 +56,10 @@ export default function Home() {
           {features.map(({ icon: Icon, label, desc }) => (
             <div
               key={label}
-              className="flex items-center gap-2.5 bg-white rounded-xl px-3.5 py-2.5 border border-slate-100 shadow-sm"
+              className="glass glass-sheen flex items-center gap-2.5 rounded-2xl px-3.5 py-2.5"
             >
-              <div className="w-7 h-7 rounded-lg bg-indigo-50 flex items-center justify-center flex-shrink-0">
-                <Icon size={14} className="text-indigo-600" />
+              <div className="glass-subtle w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 relative">
+                <Icon size={14} className="text-indigo-600 relative" />
               </div>
               <div className="text-left">
                 <p className="text-xs font-semibold text-slate-800 leading-none">{label}</p>
@@ -96,9 +95,8 @@ export default function Home() {
             <button
               onClick={handleOpen}
               aria-label="Open support chat"
-              className={`flex items-center gap-2.5 bg-white rounded-full pl-3 pr-4 py-2.5
-                shadow-xl border border-slate-100 hover:shadow-2xl hover:border-indigo-200
-                transition-shadow duration-200 group
+              className={`glass glass-sheen flex items-center gap-2.5 rounded-full pl-3 pr-4 py-2.5
+                hover:shadow-2xl transition-shadow duration-200 group
                 ${closing ? "animate-labelFade" : "animate-labelSlide"}`}
               onAnimationEnd={() => setClosing(false)}
             >
@@ -128,10 +126,9 @@ export default function Home() {
             <button
               onClick={() => (isOpen ? setIsOpen(false) : handleOpen())}
               aria-label={isOpen ? "Close support chat" : "Open support chat"}
-              className="relative w-14 h-14 rounded-full flex items-center justify-center
-                shadow-xl hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-indigo-300
+              className="glass-tint glass-sheen relative w-14 h-14 rounded-full flex items-center justify-center
+                hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-indigo-300/50
                 transition-all duration-200 hover:scale-105 active:scale-95"
-              style={{ background: "linear-gradient(135deg, #4f46e5 0%, #2563eb 100%)" }}
             >
               <span key={isOpen ? "x" : "msg"} className="animate-iconIn absolute">
                 {isOpen ? (
